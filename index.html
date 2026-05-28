@@ -1,0 +1,1040 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="Constructability Review Workshop — A professional tool for oil & gas EPC projects with AI-powered assessment, editable checklists, and printable reports.">
+<meta name="author" content="Rajagopal Kannan">
+<meta property="og:title" content="Constructability Review Workshop">
+<meta property="og:description" content="AI-powered constructability review tool for oil & gas EPC projects">
+<meta property="og:type" content="website">
+<title>Constructability Review Workshop</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🏗️</text></svg>">
+<style>
+/* ── DESIGN TOKENS ── */
+:root {
+  --bg0: #ffffff;
+  --bg1: #f7f6f3;
+  --bg2: #eeede9;
+  --text0: #1a1919;
+  --text1: #5c5b57;
+  --text2: #9b9a97;
+  --border0: rgba(0,0,0,0.07);
+  --border1: rgba(0,0,0,0.13);
+  --border2: rgba(0,0,0,0.22);
+  --navy: #0C2340;
+  --amber: #EF9F27;
+  --amber-lt: rgba(239,159,39,0.15);
+  --info-bg: #e6f1fb;
+  --info-col: #185FA5;
+  --danger-bg: #fcebeb;
+  --danger-col: #a32d2d;
+  --warn-bg: #faeeda;
+  --warn-col: #854F0B;
+  --success-bg: #eaf3de;
+  --success-col: #3B6D11;
+  --muted-bg: #f1efe8;
+  --muted-col: #5f5e5a;
+  --r-sm: 6px;
+  --r-md: 8px;
+  --r-lg: 12px;
+  --shadow: 0 1px 3px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.04);
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg0: #1c1c1e;
+    --bg1: #2c2c2e;
+    --bg2: #3a3a3c;
+    --text0: #f2f2f7;
+    --text1: #aeaeb2;
+    --text2: #636366;
+    --border0: rgba(255,255,255,0.06);
+    --border1: rgba(255,255,255,0.12);
+    --border2: rgba(255,255,255,0.20);
+    --info-bg: #0c2d4d;
+    --info-col: #64aaee;
+    --danger-bg: #3d1212;
+    --danger-col: #f08080;
+    --warn-bg: #3d2800;
+    --warn-col: #f0b860;
+    --success-bg: #0d2a05;
+    --success-col: #78c440;
+    --muted-bg: #2a2a28;
+    --muted-col: #aeaeb2;
+    --amber: #ffb733;
+    --amber-lt: rgba(255,183,51,0.15);
+  }
+}
+
+/* ── RESET & BASE ── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  font-size: 15px; line-height: 1.6;
+  background: var(--bg1);
+  color: var(--text0);
+  min-height: 100vh;
+}
+
+/* ── LAYOUT ── */
+.app-wrap { max-width: 1100px; margin: 0 auto; padding: 20px 16px 60px; }
+.app-header {
+  background: var(--navy); color: #fff;
+  border-radius: var(--r-lg) var(--r-lg) 0 0;
+  padding: 16px 22px;
+  display: flex; justify-content: space-between; align-items: center;
+}
+.app-header .title-row { display: flex; align-items: center; gap: 10px; font-size: 18px; font-weight: 500; }
+.app-header .subtitle { font-size: 12px; color: rgba(255,255,255,0.5); margin-top: 3px; margin-left: 36px; }
+.tabbar {
+  display: flex; background: var(--bg1);
+  border-left: 1px solid var(--border0); border-right: 1px solid var(--border0);
+  border-bottom: 1px solid var(--border1);
+}
+.tab-btn {
+  flex: 1; padding: 11px 6px;
+  font-size: 13px; font-weight: 400;
+  border: none; border-bottom: 2px solid transparent;
+  background: transparent; color: var(--text1);
+  cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 6px;
+  transition: color .15s, border-color .15s;
+}
+.tab-btn:hover { color: var(--text0); }
+.tab-btn.active { color: var(--text0); font-weight: 500; border-bottom-color: var(--navy); }
+.tab-content {
+  background: var(--bg0);
+  border: 1px solid var(--border0); border-top: none;
+  border-radius: 0 0 var(--r-lg) var(--r-lg);
+  padding: 20px;
+}
+
+/* ── CARDS ── */
+.card {
+  background: var(--bg0); border: 1px solid var(--border0);
+  border-radius: var(--r-lg); padding: 20px; box-shadow: var(--shadow);
+  margin-bottom: 14px;
+}
+.card:last-child { margin-bottom: 0; }
+.card-title { font-size: 15px; font-weight: 500; margin-bottom: 14px; display: flex; align-items: center; gap: 8px; }
+
+/* ── FORM ELEMENTS ── */
+label.fl { display: block; font-size: 11px; color: var(--text1); margin-bottom: 4px; letter-spacing: .02em; }
+input[type="text"], input[type="date"], input[type="url"], select, textarea {
+  width: 100%; padding: 7px 10px;
+  background: var(--bg1); color: var(--text0);
+  border: 1px solid var(--border1); border-radius: var(--r-sm);
+  font-size: 13px; font-family: inherit;
+  transition: border-color .15s, box-shadow .15s;
+  outline: none;
+}
+input:focus, select:focus, textarea:focus {
+  border-color: var(--info-col);
+  box-shadow: 0 0 0 3px rgba(24,95,165,0.12);
+}
+textarea { resize: vertical; min-height: 60px; }
+input[type="checkbox"] { width: auto; margin-right: 4px; accent-color: var(--navy); }
+
+/* ── BUTTONS ── */
+.btn {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 7px 14px; border-radius: var(--r-md);
+  border: 1px solid var(--border1);
+  background: var(--bg0); color: var(--text0);
+  font-size: 13px; font-family: inherit;
+  cursor: pointer; transition: background .15s;
+  text-decoration: none;
+}
+.btn:hover { background: var(--bg1); }
+.btn-primary { background: var(--navy); color: #fff; border-color: var(--navy); }
+.btn-primary:hover { background: #0e2d55; }
+.btn-primary:disabled { opacity: 0.6; cursor: wait; }
+.btn-danger { color: var(--danger-col); border-color: transparent; background: transparent; }
+.btn-danger:hover { background: var(--danger-bg); }
+
+/* ── GRIDS ── */
+.grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.grid-4 { display: grid; grid-template-columns: repeat(4,1fr); gap: 10px; }
+.col-span-2 { grid-column: 1 / -1; }
+
+/* ── TABLES ── */
+.tbl { width: 100%; border-collapse: collapse; }
+.tbl th {
+  padding: 8px 10px; text-align: left;
+  font-size: 12px; font-weight: 500; color: var(--text1);
+  background: var(--bg1);
+  border-bottom: 1px solid var(--border1);
+}
+.tbl td { padding: 6px 10px; border-bottom: 1px solid var(--border0); font-size: 13px; vertical-align: top; }
+.tbl tr:last-child td { border-bottom: none; }
+.tbl-inline input {
+  border: none; background: transparent; font-size: 13px; width: 100%;
+  padding: 2px 4px; color: var(--text0);
+}
+.tbl-inline input:focus { outline: none; background: var(--bg1); border-radius: 4px; }
+
+/* ── STAT CARDS ── */
+.stat-card { border-radius: var(--r-md); padding: 12px 14px; }
+.stat-card .stat-val { font-size: 24px; font-weight: 500; }
+.stat-card .stat-lbl { font-size: 11px; margin-bottom: 4px; opacity: .85; }
+
+/* ── BADGES ── */
+.badge { font-size: 11px; padding: 2px 8px; border-radius: 4px; font-weight: 500; white-space: nowrap; display: inline-block; }
+
+/* ── CHECKLIST LAYOUT ── */
+.cl-wrap { display: grid; grid-template-columns: 210px 1fr; gap: 14px; }
+.cat-sidebar { display: flex; flex-direction: column; gap: 5px; }
+.cat-btn {
+  width: 100%; text-align: left; padding: 10px 11px;
+  border-radius: var(--r-md); cursor: pointer;
+  border: 1px solid var(--border0); background: var(--bg0);
+  transition: all .15s; color: var(--text0);
+  font-family: inherit;
+}
+.cat-btn:hover { background: var(--bg1); }
+.cat-btn.active { background: var(--info-bg); border-color: var(--info-col); }
+.cat-btn .cat-name { font-size: 12px; line-height: 1.3; margin-bottom: 4px; font-weight: 400; }
+.cat-btn.active .cat-name { font-weight: 500; color: var(--info-col); }
+.cat-btn .cat-meta { display: flex; justify-content: space-between; align-items: center; }
+.cat-btn .cat-count { font-size: 11px; color: var(--text2); }
+.cl-items { display: flex; flex-direction: column; gap: 10px; }
+.cl-header { display: flex; align-items: center; gap:10px; padding-bottom: 10px; border-bottom: 1px solid var(--border0); margin-bottom: 4px; }
+.cl-item {
+  background: var(--bg0); border: 1px solid var(--border0);
+  border-radius: var(--r-md); padding: 12px 14px;
+}
+.cl-item.warn { border-color: var(--warn-col); }
+.cl-item.danger { border-color: var(--danger-col); }
+.cl-item-top { display: flex; align-items: flex-start; justify-content: space-between; gap: 10px; margin-bottom: 10px; }
+.cl-item-label { font-size: 14px; font-weight: 500; line-height: 1.5; flex: 1; }
+.rating-btns { display: flex; gap: 5px; flex-shrink: 0; flex-wrap: wrap; }
+.rating-btn {
+  font-size: 11px; padding: 3px 9px; border-radius: 4px;
+  cursor: pointer; white-space: nowrap; font-weight: 400;
+  border: 1px solid var(--border1); background: var(--bg1); color: var(--text1);
+  font-family: inherit; transition: all .1s;
+}
+.cl-fields { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.cl-fields-sub { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+
+
+
+/* ── REPORT ── */
+.report-section { margin-bottom: 1.75rem; }
+.report-h { font-size: 15px; font-weight: 500; margin-bottom: 10px; padding-top: 2px; }
+.report-header { text-align: center; border-bottom: 2px solid var(--border1); padding-bottom: 1.5rem; margin-bottom: 2rem; }
+.report-header h1 { font-size: 22px; font-weight: 500; margin-bottom: .5rem; }
+.report-footer { margin-top: 2rem; padding-top: 1rem; border-top: 1px solid var(--border0); display: flex; justify-content: space-between; font-size: 11px; color: var(--text2); }
+.kv-table td:first-child { font-weight: 500; background: var(--bg1); width: 38%; }
+.progress-ring { flex-shrink: 0; }
+
+/* ── AI OUTPUT ── */
+.ai-output { white-space: pre-wrap; font-size: 14px; line-height: 1.75; color: var(--text0); font-family: inherit; }
+
+/* ── UTILS ── */
+.flex-between { display: flex; justify-content: space-between; align-items: center; }
+.flex-center { display: flex; align-items: center; gap: 8px; }
+.muted { color: var(--text1); }
+.small { font-size: 12px; }
+.mt-12 { margin-top: 12px; }
+.mb-16 { margin-bottom: 16px; }
+.p-note { font-size: 13px; color: var(--text1); margin-bottom: 1rem; line-height: 1.6; }
+
+/* ── SPINNER ── */
+@keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+.spin { display: inline-block; animation: spin 1s linear infinite; }
+
+/* ── PRINT ── */
+@media print {
+  body { background: #fff !important; color: #000 !important; }
+  .no-print { display: none !important; }
+  .app-header { background: #0C2340 !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  .tabbar { display: none !important; }
+  .tab-content { border: none !important; padding: 0 !important; }
+  .app-wrap { padding: 0 !important; }
+  .card { box-shadow: none !important; break-inside: avoid; }
+  @page { margin: 1.5cm; }
+}
+
+/* ── RESPONSIVE ── */
+@media (max-width: 700px) {
+  .cl-wrap { grid-template-columns: 1fr; }
+  .cat-sidebar { flex-direction: row; overflow-x: auto; flex-wrap: nowrap; }
+  .cat-btn { min-width: 140px; }
+  .grid-2, .cl-fields, .grid-4 { grid-template-columns: 1fr; }
+  .tabbar { flex-wrap: wrap; }
+  .tab-btn { flex: 0 0 50%; }
+}
+</style>
+</head>
+<body>
+<div class="app-wrap">
+
+  <!-- ── HEADER ───────────────────────────────────────── -->
+  <div class="app-header">
+    <div>
+      <div class="title-row">
+        <span>🏗️</span>
+        <span>Constructability Review Workshop</span>
+      </div>
+      <div class="subtitle" id="hdr-subtitle">New Workshop · Complete your project details</div>
+    </div>
+    <div class="flex-center">
+      <div style="text-align:right">
+        <div style="font-size:12px;color:rgba(255,255,255,.7)" id="hdr-pct">0% complete</div>
+        <div style="font-size:11px;color:rgba(255,255,255,.45)" id="hdr-counts">0/68 items</div>
+      </div>
+      <svg class="progress-ring" width="44" height="44" viewBox="0 0 44 44" aria-label="Completion progress">
+        <circle cx="22" cy="22" r="18" fill="none" stroke="rgba(255,255,255,0.15)" stroke-width="3"/>
+        <circle id="ring-arc" cx="22" cy="22" r="18" fill="none" stroke="#EF9F27" stroke-width="3"
+          stroke-dasharray="0 113.1" stroke-linecap="round" transform="rotate(-90 22 22)"/>
+        <text id="ring-txt" x="22" y="26" text-anchor="middle" fill="#EF9F27" font-size="10" font-weight="500">0%</text>
+      </svg>
+    </div>
+  </div>
+
+  <!-- ── TAB BAR ────────────────────────────────────────── -->
+  <div class="tabbar no-print" role="tablist">
+    <button class="tab-btn active" role="tab" onclick="switchTab('setup')">📋 Workshop Setup</button>
+    <button class="tab-btn" role="tab" onclick="switchTab('checklist')">✅ Review Checklist</button>
+    <button class="tab-btn" role="tab" onclick="switchTab('ai')">🤖 AI Assessment</button>
+    <button class="tab-btn" role="tab" onclick="switchTab('report')">📄 Report</button>
+  </div>
+
+  <!-- ── TAB CONTENT ─────────────────────────────────────── -->
+  <div class="tab-content">
+
+    <!-- SETUP TAB -->
+    <div id="tab-setup">
+      <div class="card">
+        <div class="card-title">🏗️ Project Information</div>
+        <div class="grid-2">
+          <div class="col-span-2">
+            <label class="fl" for="pName">Project Name</label>
+            <input type="text" id="pName" oninput="S.proj.name=this.value;updateHeader()" placeholder="e.g. Hazar CPF Expansion Phase 2">
+          </div>
+          <div>
+            <label class="fl" for="pNum">Project Number</label>
+            <input type="text" id="pNum" oninput="S.proj.number=this.value;updateHeader()" placeholder="e.g. PRJ-2025-047">
+          </div>
+          <div>
+            <label class="fl" for="pDate">Review Date</label>
+            <input type="date" id="pDate" oninput="S.proj.date=this.value;updateHeader()">
+          </div>
+          <div>
+            <label class="fl" for="pClient">Client / Owner</label>
+            <input type="text" id="pClient" oninput="S.proj.client=this.value;updateHeader()" placeholder="e.g. Dragon Oil (Turkmenistan) Ltd">
+          </div>
+          <div>
+            <label class="fl" for="pContractor">EPC Contractor</label>
+            <input type="text" id="pContractor" oninput="S.proj.contractor=this.value" placeholder="e.g. Petrofac / Saipem">
+          </div>
+          <div>
+            <label class="fl" for="pLocation">Location / Site</label>
+            <input type="text" id="pLocation" oninput="S.proj.location=this.value" placeholder="e.g. Hazar, Turkmenistan">
+          </div>
+          <div>
+            <label class="fl" for="pFacility">Facility Type</label>
+            <input type="text" id="pFacility" oninput="S.proj.facilityType=this.value" placeholder="e.g. Oil & Gas CPF, Offshore Platform, Warehouse">
+          </div>
+          <div class="col-span-2">
+            <label class="fl" for="pScope">Scope of Review</label>
+            <textarea id="pScope" rows="3" oninput="S.proj.scope=this.value" placeholder="Describe the scope, boundaries, and objectives of this constructability review workshop..."></textarea>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">👤 Lead Reviewer</div>
+        <div class="grid-2">
+          <div>
+            <label class="fl" for="pReviewer">Full Name</label>
+            <input type="text" id="pReviewer" value="Rajagopal Kannan" oninput="S.proj.reviewer=this.value">
+          </div>
+          <div>
+            <label class="fl" for="pDesig">Designation / Title</label>
+            <input type="text" id="pDesig" value="Senior HSE & Emergency Response Professional" oninput="S.proj.designation=this.value">
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="flex-between mb-16">
+          <div class="card-title" style="margin:0">👥 Workshop Participants</div>
+          <button class="btn" onclick="addParticipant()">+ Add Participant</button>
+        </div>
+        <div style="overflow-x:auto">
+          <table class="tbl">
+            <thead><tr>
+              <th>Name</th><th>Discipline</th><th>Company</th><th>Role / Designation</th><th style="width:40px"></th>
+            </tr></thead>
+            <tbody id="ptBody"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- CHECKLIST TAB -->
+    <div id="tab-checklist" style="display:none">
+      <div class="cl-wrap">
+        <div class="cat-sidebar" id="catSidebar"></div>
+        <div>
+          <div class="cl-header">
+            <span id="clCatIcon" style="font-size:20px">🔷</span>
+            <h2 id="clCatTitle" style="font-size:16px;font-weight:500;margin:0">Design & Engineering</h2>
+            <span id="clCatCount" class="muted small" style="margin-left:auto"></span>
+          </div>
+          <div class="cl-items" id="clItems"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- AI TAB -->
+    <div id="tab-ai" style="display:none">
+      <div class="grid-4 mb-16" id="aiStats"></div>
+
+      <!-- API Key Card -->
+      <div class="card" style="margin-bottom:14px;border-left:3px solid var(--amber)">
+        <div class="flex-between" style="margin-bottom:10px">
+          <div class="card-title" style="margin:0;display:flex;align-items:center;gap:8px">
+            🔑 OpenAI API Key
+            <span class="badge" style="background:var(--warn-bg);color:var(--warn-col)">Required</span>
+          </div>
+          <a href="https://platform.openai.com/api-keys" target="_blank" rel="noopener"
+             style="font-size:12px;color:var(--info-col);text-decoration:none">
+            Get your key at platform.openai.com ↗
+          </a>
+        </div>
+        <p class="p-note" style="margin-bottom:10px">
+          Enter your OpenAI API key to enable AI assessment using <strong>GPT-4o</strong>.
+          Your key is used only in your browser and is <strong>never stored or transmitted</strong>
+          anywhere except directly to OpenAI's API. Closing this tab clears it permanently.
+        </p>
+        <div style="display:grid;grid-template-columns:1fr auto auto;gap:8px;align-items:end">
+          <div>
+            <label class="fl" for="apiKey">OpenAI API Key
+              &nbsp;·&nbsp; <span style="font-weight:400">starts with
+              <code style="font-size:11px;background:var(--bg1);padding:1px 5px;border-radius:3px">sk-</code>
+              or
+              <code style="font-size:11px;background:var(--bg1);padding:1px 5px;border-radius:3px">sk-proj-</code>
+              </span>
+            </label>
+            <input type="password" id="apiKey" placeholder="sk-..." autocomplete="off" spellcheck="false"
+                   oninput="updateKeyStatus()"
+                   style="font-family:monospace;font-size:13px;letter-spacing:.04em">
+          </div>
+          <button class="btn" onclick="toggleKeyVis()" id="keyVisBtn" title="Show / hide key"
+                  style="padding:7px 12px;align-self:flex-end">👁 Show</button>
+          <div style="align-self:flex-end">
+            <label class="fl">Model</label>
+            <select id="modelSel" style="font-size:13px">
+              <option value="gpt-4o">GPT-4o (recommended)</option>
+              <option value="gpt-4o-mini">GPT-4o Mini (faster / cheaper)</option>
+              <option value="gpt-4-turbo">GPT-4 Turbo</option>
+            </select>
+          </div>
+        </div>
+        <div id="keyStatus" style="margin-top:8px;font-size:12px;color:var(--text2)">
+          No key entered — AI assessment unavailable until a valid key is provided.
+        </div>
+      </div>
+
+      <!-- Notes + Generate -->
+      <div class="card">
+        <div class="card-title">🤖 AI Constructability Assessment</div>
+        <p class="p-note">
+          The AI analyses your checklist findings and project context to generate a
+          structured constructability report. Powered by <strong>GPT-4o (OpenAI)</strong>.
+        </p>
+        <label class="fl" for="aiNotes">Additional notes / context for AI analysis</label>
+        <textarea id="aiNotes" rows="5" style="margin-bottom:14px"
+          placeholder="Add site observations, specific concerns, local regulatory requirements, environmental constraints, HSE considerations, or any other context relevant to this review..."></textarea>
+        <button class="btn btn-primary" id="aiBtn" onclick="runAI()">✦ Generate AI Assessment</button>
+        <div id="aiErr" style="font-size:13px;margin-top:12px;padding:10px 14px;border-radius:var(--r-md);display:none;line-height:1.6"></div>
+      </div>
+
+      <!-- AI Response -->
+      <div class="card" id="aiRespCard" style="display:none;margin-top:14px">
+        <div class="flex-between mb-16">
+          <div class="card-title" style="margin:0">📄 AI Assessment Output</div>
+          <div style="display:flex;gap:8px;align-items:center">
+            <span id="aiModelTag" class="badge" style="background:var(--info-bg);color:var(--info-col)"></span>
+            <button class="btn" onclick="copyAI()">📋 Copy text</button>
+          </div>
+        </div>
+        <div id="aiRespOut" class="ai-output"></div>
+      </div>
+    </div>
+
+    <!-- REPORT TAB -->
+    <div id="tab-report" style="display:none">
+      <div class="flex-center mb-16 no-print" style="flex-wrap:wrap;gap:10px">
+        <button class="btn" onclick="exportJSON()">⬇ Download Worksheet (JSON)</button>
+        <button class="btn" onclick="exportCSV()">📊 Download Findings Register (CSV)</button>
+        <button class="btn btn-primary" onclick="window.print()">🖨 Print Report</button>
+      </div>
+      <div class="card" id="reportBody" style="padding:2rem"></div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ── SCRIPT ────────────────────────────────────────────────────────────── -->
+<script>
+/* ─────────── DATA ─────────── */
+const CATS = [
+  { id:"design",       label:"Design & Engineering",            icon:"🔷",
+    items:["Drawings complete, coordinated & legible","Specifications complete & unambiguous","Design codes & standards correctly applied","Design considers local construction practices","Material callouts clear & locally available","Dimensional tolerances achievable on site","Equipment layouts allow maintenance access","Structural design accounts for construction loads","Underground utilities clearly identified","Vendor data incorporated into design docs","As-built survey data used in design basis"] },
+  { id:"materials",    label:"Materials & Procurement",          icon:"📦",
+    items:["Long-lead items identified & procurement initiated","Material take-off (MTO) accuracy verified","Material substitutions documented & approved","Bulk material storage & warehousing plan in place","Local sourcing opportunities identified","Material preservation requirements specified","Hazardous material handling plans prepared","Construction waste disposal plan in place"] },
+  { id:"construction", label:"Construction Methods & Sequencing",icon:"🔧",
+    items:["Construction sequence defined & optimised","Modularisation/prefabrication opportunities reviewed","Heavy lift & rigging plans developed","Welding procedures qualified & available","NDT plans prepared & resources allocated","Temporary works design completed","Equipment erection sequence planned","Pressure testing procedures developed","Flushing & cleaning procedures defined","Quality hold points clearly identified"] },
+  { id:"site",         label:"Site Access & Logistics",          icon:"📍",
+    items:["Site access roads adequate for heavy equipment","Laydown areas sufficient & correctly positioned","Crane picks & pathways clear of obstructions","Construction utilities (power, water) available","Workforce accommodation plan in place","Material receiving & inspection plan prepared","Traffic management plan implemented"] },
+  { id:"hse",          label:"HSE & Safety in Design",           icon:"🛡️",
+    items:["HAZID/HAZOP studies completed & closed out","Safety critical elements (SCEs) identified","Emergency response plan established","First aid & medical facilities adequate","Fire & gas detection systems designed","Escape routes & muster points defined","Permit-to-work (PTW) system implemented","Safety in Design (SiD) review completed","Environmental impact assessment completed"] },
+  { id:"schedule",     label:"Schedule & Cost",                   icon:"📅",
+    items:["Construction schedule logic verified","Critical path identified & actively mitigated","Resource loading analysed & optimised","Man-hour estimates validated against benchmarks","Productivity assumptions verified on similar projects","Contingency reserves assessed as adequate","Schedule interfaces with procurement aligned","Commissioning activities included in schedule"] },
+  { id:"interfaces",   label:"Interfaces & Coordination",         icon:"🔁",
+    items:["Inter-discipline design coordination completed","Tie-in points with existing facilities identified","Brownfield/shutdown window requirements defined","Vendor/OEM interface requirements addressed","Client-furnished equipment/items schedule confirmed","Multi-contractor interface agreements in place","IT/SCADA/control systems integration planned"] },
+  { id:"commissioning",label:"Commissioning & Startup",           icon:"⚙️",
+    items:["Pre-commissioning plan prepared","Commissioning utilities requirements defined","Spares list for commissioning prepared","Commissioning team identified & mobilised","Operating procedures drafted","Training plan for operators prepared","Performance testing criteria established","Handover documentation plan in place"] }
+];
+
+const RATINGS = [
+  { v:"S",   label:"Satisfactory",      bg:"var(--success-bg)", col:"var(--success-col)" },
+  { v:"NI",  label:"Needs Improvement", bg:"var(--warn-bg)",    col:"var(--warn-col)"    },
+  { v:"NAR", label:"Not Acceptable",    bg:"var(--danger-bg)",  col:"var(--danger-col)"  },
+  { v:"NA",  label:"N/A",               bg:"var(--muted-bg)",   col:"var(--muted-col)"   }
+];
+
+const PRIMAP = {
+  critical:["var(--danger-bg)","var(--danger-col)"],
+  high:    ["var(--warn-bg)",  "var(--warn-col)"],
+  medium:  ["var(--success-bg)","var(--success-col)"],
+  low:     ["var(--muted-bg)", "var(--muted-col)"]
+};
+
+/* ─────────── STATE ─────────── */
+const S = {
+  tab: "setup",
+  activeCat: "design",
+  proj: {
+    name:"", number:"", client:"", contractor:"",
+    date: new Date().toISOString().split("T")[0],
+    location:"", facilityType:"", scope:"",
+    reviewer:"Rajagopal Kannan",
+    designation:"Senior HSE & Emergency Response Professional"
+  },
+  participants: [
+    {id:1,name:"",discipline:"",company:"",role:""}
+  ],
+  cl: {},
+  aiNotes: "",
+  aiResp: ""
+};
+
+// Init checklist
+CATS.forEach(c => c.items.forEach((_,i) => {
+  S.cl[`${c.id}_${i}`] = {rating:null,finding:"",action:"",responsible:"",dueDate:"",priority:"medium"};
+}));
+
+/* ─────────── STATS ─────────── */
+function getStats() {
+  const vals = Object.values(S.cl);
+  return {
+    total:  vals.length,
+    rated:  vals.filter(v=>v.rating).length,
+    S:      vals.filter(v=>v.rating==="S").length,
+    NI:     vals.filter(v=>v.rating==="NI").length,
+    NAR:    vals.filter(v=>v.rating==="NAR").length,
+    NA:     vals.filter(v=>v.rating==="NA").length,
+    findings: vals.filter(v=>v.finding.trim()).length,
+    actions:  vals.filter(v=>v.action.trim()).length
+  };
+}
+
+/* ─────────── HEADER ─────────── */
+function updateHeader() {
+  const s = getStats();
+  const pct = Math.round((s.rated/s.total)*100);
+  document.getElementById("hdr-subtitle").textContent =
+    (S.proj.name||"New Workshop") + (S.proj.client?` | ${S.proj.client}`:"") + (S.proj.date?` | ${S.proj.date}`:"");
+  document.getElementById("hdr-pct").textContent = `${pct}% complete`;
+  document.getElementById("hdr-counts").textContent = `${s.rated}/${s.total} items reviewed`;
+  const circ = 2*Math.PI*18;
+  document.getElementById("ring-arc").setAttribute("stroke-dasharray",`${(pct/100)*circ} ${circ}`);
+  document.getElementById("ring-txt").textContent = `${pct}%`;
+}
+
+/* ─────────── TABS ─────────── */
+function switchTab(id) {
+  S.tab = id;
+  document.querySelectorAll('.tab-btn').forEach((b,i) => {
+    const tabs=["setup","checklist","ai","report"];
+    b.classList.toggle('active', tabs[i]===id);
+  });
+  ["setup","checklist","ai","report"].forEach(t => {
+    document.getElementById(`tab-${t}`).style.display = t===id?"block":"none";
+  });
+  if(id==="checklist") { renderCatSidebar(); renderClItems(); }
+  if(id==="ai")        renderAIStats();
+  if(id==="report")    renderReport();
+}
+
+/* ─────────── SETUP ─────────── */
+function addParticipant() {
+  S.participants.push({id:Date.now(),name:"",discipline:"",company:"",role:""});
+  renderParticipants();
+}
+function removeParticipant(i) { S.participants.splice(i,1); renderParticipants(); }
+function renderParticipants() {
+  document.getElementById("ptBody").innerHTML = S.participants.map((p,i)=>`
+    <tr>
+      ${["name","discipline","company","role"].map(f=>`
+        <td class="tbl-inline"><input type="text" value="${esc(p[f]||"")}" placeholder="${f[0].toUpperCase()+f.slice(1)}" oninput="S.participants[${i}]['${f}']=this.value"></td>
+      `).join("")}
+      <td style="text-align:center;padding:4px 6px"><button class="btn btn-danger" onclick="removeParticipant(${i})" title="Remove">✕</button></td>
+    </tr>`).join("");
+}
+renderParticipants();
+
+// Set initial date
+document.getElementById("pDate").value = S.proj.date;
+
+/* ─────────── CHECKLIST ─────────── */
+function renderCatSidebar() {
+  document.getElementById("catSidebar").innerHTML = CATS.map(c=>{
+    const vals = c.items.map((_,i)=>S.cl[`${c.id}_${i}`]);
+    const rated = vals.filter(x=>x.rating).length;
+    const issues = vals.some(x=>x.rating==="NAR"||x.rating==="NI");
+    const done = rated===c.items.length;
+    const active = c.id===S.activeCat;
+    return `<button class="cat-btn ${active?"active":""}" onclick="setActiveCat('${c.id}')">
+      <div class="flex-center cat-name" style="margin-bottom:5px;gap:6px"><span>${c.icon}</span><span>${c.label}</span></div>
+      <div class="cat-meta">
+        <span class="cat-count">${rated}/${c.items.length}</span>
+        ${issues?`<span class="badge" style="background:var(--warn-bg);color:var(--warn-col);font-size:10px">Issues</span>`:""}
+        ${done&&!issues?`<span class="badge" style="background:var(--success-bg);color:var(--success-col);font-size:10px">Done</span>`:""}
+      </div>
+    </button>`;
+  }).join("");
+}
+
+function setActiveCat(id) {
+  S.activeCat = id;
+  renderCatSidebar();
+  renderClItems();
+}
+
+function renderClItems() {
+  const cat = CATS.find(c=>c.id===S.activeCat);
+  const rated = cat.items.filter((_,i)=>S.cl[`${cat.id}_${i}`]?.rating).length;
+  document.getElementById("clCatIcon").textContent  = cat.icon;
+  document.getElementById("clCatTitle").textContent = cat.label;
+  document.getElementById("clCatCount").textContent = `${rated}/${cat.items.length} rated`;
+  document.getElementById("clItems").innerHTML = cat.items.map((item,i)=>{
+    const key = `${cat.id}_${i}`;
+    const d = S.cl[key];
+    const borderCls = d.rating==="NAR"?"danger":d.rating==="NI"?"warn":"";
+    return `<div class="cl-item ${borderCls}" id="cli-${key}">
+      <div class="cl-item-top">
+        <div class="cl-item-label">${i+1}. ${item}</div>
+        <div class="rating-btns">
+          ${RATINGS.map(r=>`<button class="rating-btn" id="rb-${key}-${r.v}" style="${d.rating===r.v?`background:${r.bg};color:${r.col};border-color:${r.col};font-weight:500`:""}" onclick="setRating('${key}','${r.v}')">${r.label}</button>`).join("")}
+        </div>
+      </div>
+      <div class="cl-fields">
+        <div><label class="fl">Finding / Observation</label><textarea rows="2" style="font-size:13px" placeholder="Describe finding or observation..." oninput="S.cl['${key}'].finding=this.value">${esc(d.finding||"")}</textarea></div>
+        <div><label class="fl">Recommended Action</label><textarea rows="2" style="font-size:13px" placeholder="Describe recommended action..." oninput="S.cl['${key}'].action=this.value">${esc(d.action||"")}</textarea></div>
+        <div><label class="fl">Responsible Party</label><input type="text" value="${esc(d.responsible||"")}" placeholder="Name / Team / Discipline" style="font-size:13px" oninput="S.cl['${key}'].responsible=this.value"></div>
+        <div class="cl-fields-sub">
+          <div><label class="fl">Due Date</label><input type="date" value="${d.dueDate||""}" style="font-size:13px" oninput="S.cl['${key}'].dueDate=this.value"></div>
+          <div><label class="fl">Priority</label><select style="font-size:13px" onchange="S.cl['${key}'].priority=this.value">
+            ${["critical","high","medium","low"].map(p=>`<option value="${p}" ${d.priority===p?"selected":""}>${p[0].toUpperCase()+p.slice(1)}</option>`).join("")}
+          </select></div>
+        </div>
+      </div>
+    </div>`;
+  }).join("");
+}
+
+function setRating(key, v) {
+  S.cl[key].rating = S.cl[key].rating===v ? null : v;
+  updateHeader();
+  renderCatSidebar();
+  renderClItems();
+}
+
+/* ─────────── AI ─────────── */
+function renderAIStats() {
+  const s = getStats();
+  document.getElementById("aiStats").innerHTML = [
+    {l:"Reviewed",      v:`${s.rated}/${s.total}`,bg:"var(--info-bg)",  col:"var(--info-col)"},
+    {l:"Satisfactory",  v:s.S,   bg:"var(--success-bg)",col:"var(--success-col)"},
+    {l:"Needs Improvement",v:s.NI,bg:"var(--warn-bg)",col:"var(--warn-col)"},
+    {l:"Not Acceptable",v:s.NAR, bg:"var(--danger-bg)", col:"var(--danger-col)"},
+  ].map(x=>`<div class="stat-card" style="background:${x.bg}">
+    <div class="stat-lbl" style="color:${x.col}">${x.l}</div>
+    <div class="stat-val" style="color:${x.col}">${x.v}</div>
+  </div>`).join("");
+}
+
+/* ── API KEY HELPERS ── */
+function toggleKeyVis() {
+  const inp = document.getElementById("apiKey");
+  const btn = document.getElementById("keyVisBtn");
+  if(inp.type === "password") { inp.type = "text"; btn.textContent = "🙈 Hide"; }
+  else { inp.type = "password"; btn.textContent = "👁 Show"; }
+}
+
+function updateKeyStatus() {
+  const key = (document.getElementById("apiKey")||{}).value||"";
+  const el  = document.getElementById("keyStatus");
+  if(!el) return;
+  if(!key) {
+    el.style.color = "var(--text2)";
+    el.textContent = "No key entered — AI assessment unavailable until a valid key is provided.";
+  } else if(!key.startsWith("sk-")) {
+    el.style.color = "var(--danger-col)";
+    el.textContent = "⚠ Key format looks wrong — OpenAI keys start with sk- or sk-proj-";
+  } else if(key.length < 32) {
+    el.style.color = "var(--warn-col)";
+    el.textContent = "⚠ Key looks too short — double-check you pasted the full key.";
+  } else {
+    el.style.color = "var(--success-col)";
+    el.textContent = "✓ Key format looks valid — ready to generate assessment.";
+  }
+}
+
+/* ── OPENAI API CALL ── */
+async function runAI() {
+  const apiKey = (document.getElementById("apiKey")||{}).value.trim()||"";
+  const model  = (document.getElementById("modelSel")||{}).value||"gpt-4o";
+
+  /* ── Validate key ── */
+  if(!apiKey) {
+    showAiErr("error",
+      "No API key entered. Enter your OpenAI API key in the 🔑 box above, " +
+      "then try again. Get one at platform.openai.com/api-keys.");
+    return;
+  }
+  if(!apiKey.startsWith("sk-")) {
+    showAiErr("warn",
+      "API key format looks incorrect — OpenAI keys start with sk- or sk-proj-. " +
+      "Please check you pasted the correct key from platform.openai.com.");
+    return;
+  }
+
+  S.aiNotes = document.getElementById("aiNotes").value;
+  const btn = document.getElementById("aiBtn");
+  btn.disabled = true;
+  btn.innerHTML = '<span class="spin">⟳</span> Analysing with ' + model + '...';
+  document.getElementById("aiErr").style.display = "none";
+  document.getElementById("aiRespCard").style.display = "none";
+
+  /* ── Build prompt context ── */
+  const s = getStats();
+  const findings = [];
+  CATS.forEach(c=>c.items.forEach((item,i)=>{
+    const d=S.cl[`${c.id}_${i}`];
+    if(d.rating||d.finding) findings.push(
+      `[${c.label}] ${item}: ${d.rating||"unrated"}` +
+      `${d.finding?` — ${d.finding}`:""}` +
+      `${d.action?` | Action: ${d.action}`:""}`
+    );
+  }));
+  const p = S.proj;
+
+  const systemMsg =
+    "You are a senior Constructability Review expert with 25+ years of oil & gas EPC experience, " +
+    "specialising in HSE, Emergency Response, and project management. " +
+    "Provide structured, actionable, and technically precise assessments.";
+
+  const userMsg =
+`PROJECT: ${p.name||"[Project Name]"} (${p.number||"[No.]"})
+CLIENT: ${p.client||"[Client]"} | CONTRACTOR: ${p.contractor||"[Contractor]"}
+FACILITY TYPE: ${p.facilityType||"[Type]"} | LOCATION: ${p.location||"[Location]"}
+LEAD REVIEWER: ${p.reviewer} — ${p.designation}
+REVIEW DATE: ${p.date}
+SCOPE: ${p.scope||"Not specified."}
+
+WORKSHOP STATISTICS:
+Items Reviewed: ${s.rated}/${s.total} | Satisfactory: ${s.S} | Needs Improvement: ${s.NI} | Not Acceptable: ${s.NAR} | N/A: ${s.NA}
+Open Findings: ${s.findings} | Action Items: ${s.actions}
+
+CHECKLIST FINDINGS:
+${findings.length?findings.join("\n"):"No items rated yet — provide general constructability assessment guidance."}
+
+ADDITIONAL REVIEWER NOTES:
+${S.aiNotes||"None provided."}
+
+Please provide a structured report with these exact sections:
+1. EXECUTIVE SUMMARY (3–4 sentences, project-specific)
+2. CRITICAL ISSUES (bullet list — items requiring immediate attention before construction)
+3. KEY RISKS (schedule, cost, and HSE risks — bullet list with suggested mitigations)
+4. HSE OBSERVATIONS (specific observations relevant to the construction phase)
+5. PRIORITISED RECOMMENDATIONS (numbered list, highest priority first)
+6. OVERALL CONSTRUCTABILITY READINESS SCORE: X/10 — one-line justification`;
+
+  try {
+    const res = await fetch("https://api.openai.com/v1/chat/completions", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": `Bearer ${apiKey}`
+      },
+      body: JSON.stringify({
+        model: model,
+        max_tokens: 1500,
+        temperature: 0.4,
+        messages: [
+          { role: "system", content: systemMsg },
+          { role: "user",   content: userMsg   }
+        ]
+      })
+    });
+
+    /* ── Handle HTTP errors with clear guidance ── */
+    if(!res.ok) {
+      let errBody = {};
+      try { errBody = await res.json(); } catch(_) {}
+      const detail = errBody?.error?.message || res.statusText || "Unknown error";
+      if(res.status === 401)
+        showAiErr("error",
+          "Authentication failed (401) — your API key is invalid or expired.\n" +
+          "Fix: Go to platform.openai.com/api-keys, create a new key, and paste it above.");
+      else if(res.status === 403)
+        showAiErr("error",
+          "Access denied (403) — your key may not have permission for this model.\n" +
+          "Fix: Try switching to GPT-4o Mini in the Model dropdown, or check your account at platform.openai.com.");
+      else if(res.status === 429)
+        showAiErr("warn",
+          "Rate limit or quota exceeded (429).\n" +
+          "Fix: Wait 60 seconds and try again, or check your usage limits at platform.openai.com/usage.");
+      else if(res.status === 500 || res.status === 503)
+        showAiErr("warn",
+          `OpenAI server error (${res.status}) — the API is temporarily unavailable.\n` +
+          "Fix: Wait a few seconds and try again. Check status.openai.com for outages.");
+      else if(res.status === 400)
+        showAiErr("error", `Bad request (400): ${detail}\nTry switching to a different model.`);
+      else
+        showAiErr("error", `API error ${res.status}: ${detail}`);
+      return;
+    }
+
+    const data = await res.json();
+    const text = data?.choices?.[0]?.message?.content;
+    if(text) {
+      S.aiResp = text;
+      document.getElementById("aiRespOut").textContent = text;
+      document.getElementById("aiRespCard").style.display = "block";
+      /* Show which model was used */
+      const tag = document.getElementById("aiModelTag");
+      if(tag) tag.textContent = data.model || model;
+      document.getElementById("aiRespCard").scrollIntoView({behavior:"smooth",block:"start"});
+    } else {
+      showAiErr("warn", "Received an empty response. Please try again.");
+    }
+
+  } catch(e) {
+    /* Failed to fetch = CORS, network, or local file:// */
+    const msg = e.message||"";
+    if(msg.toLowerCase().includes("fetch") || msg.toLowerCase().includes("network")) {
+      showAiErr("error",
+        "Network error — could not reach api.openai.com.\n\n" +
+        "Most likely causes:\n" +
+        "① Opening index.html directly as a file (file://) — browsers block API calls from local files.\n" +
+        "   Fix: Deploy to GitHub Pages, or use VS Code Live Server / Python http.server locally.\n" +
+        "② A corporate firewall or VPN is blocking outbound calls to api.openai.com.\n" +
+        "③ No internet connection.");
+    } else {
+      showAiErr("error", "Unexpected error: " + msg);
+    }
+  } finally {
+    btn.disabled = false;
+    btn.innerHTML = "✦ Generate AI Assessment";
+  }
+}
+
+function showAiErr(type, msg) {
+  const el = document.getElementById("aiErr");
+  const styles = {
+    error: { bg:"var(--danger-bg)", col:"var(--danger-col)", icon:"⚠" },
+    warn:  { bg:"var(--warn-bg)",   col:"var(--warn-col)",   icon:"⚡" }
+  };
+  const s = styles[type] || styles.error;
+  el.style.background = s.bg;
+  el.style.color       = s.col;
+  el.style.border      = `1px solid ${s.col}`;
+  el.innerHTML = `<strong>${s.icon} ${type==="error"?"Error":"Warning"}:</strong><br><span style="white-space:pre-line">${msg}</span>`;
+  el.style.display = "block";
+}
+
+function copyAI() {
+  if(navigator.clipboard) navigator.clipboard.writeText(S.aiResp)
+    .then(()=>{
+      const b = document.querySelector('[onclick="copyAI()"]');
+      if(b){ b.textContent="✓ Copied!"; setTimeout(()=>b.textContent="📋 Copy text",2000); }
+    });
+}
+
+/* ─────────── REPORT ─────────── */
+function renderReport() {
+  const s = getStats();
+  const allF = [];
+  CATS.forEach(c=>c.items.forEach((item,i)=>{
+    const d=S.cl[`${c.id}_${i}`];
+    if(d.finding||d.action||d.rating) allF.push({cat:c.label,item,...d});
+  }));
+  const p = S.proj;
+  let html = `
+  <div class="report-header">
+    <div style="font-size:11px;color:var(--text1);letter-spacing:.1em;text-transform:uppercase;margin-bottom:8px">Constructability Review Workshop</div>
+    <h1>Constructability Review Report</h1>
+    <p style="margin:.25rem 0;font-size:15px;color:var(--text1)">${esc(p.name)||"[Project Name]"}${p.number?` | ${esc(p.number)}`:""}</p>
+    <p style="font-size:13px;color:var(--text1)">Review Date: ${p.date||"—"} &nbsp;|&nbsp; Reviewer: ${esc(p.reviewer)} &nbsp;|&nbsp; ${esc(p.designation)}</p>
+  </div>
+
+  <div class="report-section">
+    <div class="report-h">1. Project Information</div>
+    <table class="tbl kv-table">
+      <tbody>
+        ${[["Project Name",p.name],["Project Number",p.number],["Client / Owner",p.client],["EPC Contractor",p.contractor],["Review Date",p.date],["Location / Site",p.location],["Facility Type",p.facilityType]].map(([k,v])=>`<tr><td>${k}</td><td>${esc(v)||"—"}</td></tr>`).join("")}
+      </tbody>
+    </table>
+  </div>
+
+  ${p.scope?`<div class="report-section"><div class="report-h">2. Scope of Review</div><p style="font-size:13px;line-height:1.75;padding:12px 14px;background:var(--bg1);border-radius:var(--r-md)">${esc(p.scope)}</p></div>`:""}
+
+  <div class="report-section">
+    <div class="report-h">3. Review Summary</div>
+    <div class="grid-4" style="gap:8px">
+      ${[{l:"Total Items",v:s.total},{l:"Items Reviewed",v:s.rated},{l:"Satisfactory",v:s.S},{l:"Needs Improvement",v:s.NI},{l:"Not Acceptable",v:s.NAR},{l:"N/A",v:s.NA},{l:"Open Findings",v:s.findings},{l:"Action Items",v:s.actions}]
+        .map(x=>`<div style="background:var(--bg1);padding:10px 12px;border-radius:var(--r-md);text-align:center"><div style="font-size:22px;font-weight:500">${x.v}</div><div style="font-size:11px;color:var(--text1)">${x.l}</div></div>`).join("")}
+    </div>
+  </div>
+
+  <div class="report-section">
+    <div class="report-h">4. Category Assessment Matrix</div>
+    <table class="tbl" style="margin-bottom:0">
+      <thead><tr>
+        <th>Category</th><th style="text-align:center">Total</th>
+        <th style="text-align:center;color:var(--success-col)">Satisfactory</th>
+        <th style="text-align:center;color:var(--warn-col)">Needs Improvement</th>
+        <th style="text-align:center;color:var(--danger-col)">Not Acceptable</th>
+        <th style="text-align:center;color:var(--muted-col)">N/A</th>
+        <th style="text-align:center">% Complete</th>
+      </tr></thead>
+      <tbody>
+      ${CATS.map(c=>{
+        const vals=c.items.map((_,i)=>S.cl[`${c.id}_${i}`]);
+        const rated=vals.filter(x=>x.rating).length;
+        return`<tr>
+          <td style="font-weight:500">${c.icon} ${c.label}</td>
+          <td style="text-align:center">${c.items.length}</td>
+          <td style="text-align:center;color:var(--success-col);font-weight:500">${vals.filter(x=>x.rating==="S").length}</td>
+          <td style="text-align:center;color:var(--warn-col);font-weight:500">${vals.filter(x=>x.rating==="NI").length}</td>
+          <td style="text-align:center;color:var(--danger-col);font-weight:500">${vals.filter(x=>x.rating==="NAR").length}</td>
+          <td style="text-align:center;color:var(--muted-col);font-weight:500">${vals.filter(x=>x.rating==="NA").length}</td>
+          <td style="text-align:center">${Math.round((rated/c.items.length)*100)}%</td>
+        </tr>`;
+      }).join("")}
+      </tbody>
+    </table>
+  </div>`;
+
+  if(allF.length>0) {
+    html += `<div class="report-section">
+      <div class="report-h">5. Findings & Action Register</div>
+      <div style="overflow-x:auto">
+      <table class="tbl" style="font-size:12px">
+        <thead><tr>
+          <th style="white-space:nowrap">#</th>
+          <th>Category</th><th>Review Item</th><th>Rating</th>
+          <th>Finding</th><th>Action Required</th>
+          <th>Responsible</th><th style="white-space:nowrap">Due Date</th><th>Priority</th>
+        </tr></thead>
+        <tbody>
+        ${allF.map((f,i)=>{
+          const rt=RATINGS.find(x=>x.v===f.rating);
+          const rtBadge=rt?`<span class="badge" style="background:${rt.bg};color:${rt.col}">${rt.label}</span>`:"—";
+          const [pbg,pcol]=PRIMAP[f.priority]||PRIMAP.medium;
+          return`<tr>
+            <td style="font-weight:500">${i+1}</td>
+            <td style="white-space:nowrap;font-size:11px">${f.cat}</td>
+            <td style="min-width:130px">${esc(f.item)}</td>
+            <td>${rtBadge}</td>
+            <td style="min-width:100px">${esc(f.finding)||"—"}</td>
+            <td style="min-width:100px">${esc(f.action)||"—"}</td>
+            <td style="white-space:nowrap">${esc(f.responsible)||"—"}</td>
+            <td style="white-space:nowrap">${f.dueDate||"—"}</td>
+            <td><span class="badge" style="background:${pbg};color:${pcol}">${f.priority}</span></td>
+          </tr>`;
+        }).join("")}
+        </tbody>
+      </table></div>
+    </div>`;
+  }
+
+  const sectionN = allF.length>0 ? 6 : 5;
+
+  if(S.aiResp) {
+    html += `<div class="report-section">
+      <div class="report-h">${sectionN}. AI Constructability Assessment</div>
+      <div class="ai-output" style="background:var(--bg1);padding:14px 16px;border-radius:var(--r-md);font-size:13px">${esc(S.aiResp)}</div>
+    </div>`;
+  }
+
+  if(S.participants.some(p=>p.name)) {
+    html += `<div class="report-section">
+      <div class="report-h">${sectionN+(S.aiResp?1:0)}. Workshop Participants</div>
+      <table class="tbl">
+        <thead><tr><th>Name</th><th>Discipline</th><th>Company</th><th>Role / Designation</th></tr></thead>
+        <tbody>${S.participants.filter(p=>p.name).map(p=>`<tr>${["name","discipline","company","role"].map(f=>`<td>${esc(p[f])||"—"}</td>`).join("")}</tr>`).join("")}</tbody>
+      </table>
+    </div>`;
+  }
+
+  html += `<div class="report-footer">
+    <span>Constructability Review Workshop Application — ${esc(p.reviewer)}</span>
+    <span>Generated: ${new Date().toLocaleDateString("en-GB",{day:"2-digit",month:"long",year:"numeric"})}</span>
+  </div>`;
+
+  document.getElementById("reportBody").innerHTML = html;
+}
+
+/* ─────────── EXPORT ─────────── */
+function exportJSON() {
+  const data = {project:S.proj,participants:S.participants,checklist:S.cl,aiAnalysis:S.aiResp,exportedAt:new Date().toISOString(),version:"1.0"};
+  dl(JSON.stringify(data,null,2),"application/json",`constructability_review_${slug(S.proj.name||"workshop")}_${S.proj.date}.json`);
+}
+
+function exportCSV() {
+  const rows=[["Category","Review Item","Rating","Finding","Action Required","Responsible","Due Date","Priority"]];
+  CATS.forEach(c=>c.items.forEach((item,i)=>{
+    const d=S.cl[`${c.id}_${i}`];
+    if(d.rating||d.finding||d.action){
+      const rt=RATINGS.find(x=>x.v===d.rating);
+      rows.push([c.label,item,rt?rt.label:"",d.finding,d.action,d.responsible,d.dueDate,d.priority]);
+    }
+  }));
+  const csv=rows.map(r=>r.map(v=>`"${String(v||"").replace(/"/g,'""')}"`).join(",")).join("\n");
+  dl(csv,"text/csv",`findings_register_${slug(S.proj.name||"workshop")}_${S.proj.date}.csv`);
+}
+
+function dl(content,type,filename) {
+  const a=document.createElement("a");
+  a.href=URL.createObjectURL(new Blob([content],{type}));
+  a.download=filename; a.click();
+}
+
+/* ─────────── UTILS ─────────── */
+function esc(s){ return String(s||"").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;"); }
+function slug(s){ return s.replace(/\s+/g,"_").replace(/[^a-zA-Z0-9_-]/g,""); }
+
+/* ─────────── INIT ─────────── */
+updateHeader();
+</script>
+</body>
+</html>
