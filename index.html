@@ -108,6 +108,15 @@ input[type=checkbox]{width:auto;accent-color:var(--navy)}
 .fc{display:flex;align-items:center;gap:7px}
 @keyframes spin{from{transform:rotate(0)}to{transform:rotate(360deg)}}
 .spin{display:inline-block;animation:spin 1s linear infinite}
+/* Sub-node hierarchy */
+.node-l0{background:var(--bg1);border-left:3px solid var(--navy)}
+.node-l1{background:var(--bg2);border-left:3px solid var(--info-col);margin-left:22px}
+.node-l2{background:var(--bg0);border:1px dashed var(--b1);margin-left:44px}
+.node-tree-line{color:var(--t2);font-size:13px;margin-right:4px}
+.ntab-l0{font-weight:500}
+.ntab-l1{margin-left:10px;font-size:11px;opacity:.9}
+.ntab-l2{margin-left:20px;font-size:10px;opacity:.8}
+
 @media print{.no-print{display:none!important}.hdr{background:#0C2340!important;-webkit-print-color-adjust:exact;print-color-adjust:exact}.tabbar{display:none!important}.tc{border:none!important;padding:0!important}.wrap{padding:0!important}@page{margin:1.5cm}}
 @media(max-width:700px){.g2,.g3,.g4,.prf{grid-template-columns:1fr}.tb{padding:8px 10px}}
 </style>
@@ -210,7 +219,7 @@ input[type=checkbox]{width:auto;accent-color:var(--navy)}
       <button class="btn btn-s" onclick="addNode()">+ Add Node</button>
     </div>
     <div id="nodeList"></div>
-    <p class="note" style="margin-top:9px;margin-bottom:0">A <strong>Node</strong> is a distinct construction area or package (e.g. Package 4 &mdash; Tank Farm). Each node is independently reviewed against all 19 guidewords using both manual input and AI assistance.</p>
+    <p class="note" style="margin-top:9px;margin-bottom:0">A <strong>Node</strong> is a top-level construction package. Add <strong>Sub-nodes</strong> (work areas within the package) and <strong>Sub-sub-nodes</strong> (specific scopes within a work area) for granular review. Each level is independently reviewed against all 19 guidewords.</p>
   </div>
 
   <!-- PARTICIPANTS -->
@@ -378,50 +387,163 @@ function switchTab(id){
 }
 
 // ════ NODES ══════════════════════════════════════════════════════════════════
-var nodeCounter=0;
-function addNode(){
-  nodeCounter++;
-  var id='nd'+Date.now();
-  S.nodes.push({id:id,code:'N'+nodeCounter,name:'',desc:''});
-  if(!S.activeNode)S.activeNode=id;
-  renderNodeList();renderNodeTabs();upHdr();
-}
-function removeNode(i){
-  var id=S.nodes[i].id;
-  Object.keys(S.cl).filter(function(k){return k.indexOf(id+'_')===0;}).forEach(function(k){delete S.cl[k];});
-  S.nodes.splice(i,1);
-  if(S.activeNode===id)S.activeNode=S.nodes.length?S.nodes[0].id:null;
-  renderNodeList();renderNodeTabs();upHdr();
-}
-function renderNodeList(){
-  var el=document.getElementById('nodeList');
-  if(!S.nodes.length){el.innerHTML='<p class="note" style="color:var(--t2);text-align:center;padding:16px 0">No nodes yet. Click <strong>+ Add Node</strong>.</p>';return;}
-  var h='';
-  S.nodes.forEach(function(n,i){
-    h+='<div style="display:grid;grid-template-columns:80px 1fr 2fr auto;gap:8px;align-items:end;margin-bottom:8px;padding:10px 11px;background:var(--bg1);border-radius:var(--r)">';
-    h+='<div><label class="fl">Code</label><input type="text" value="'+esc(n.code)+'" placeholder="N1" style="font-family:monospace;font-weight:500" oninput="S.nodes['+i+'].code=this.value;renderNodeTabs();upHdr()"></div>';
-    h+='<div><label class="fl">Node / Package Name</label><input type="text" value="'+esc(n.name)+'" placeholder="e.g. Package 4 \u2014 Tank Farm" oninput="S.nodes['+i+'].name=this.value;renderNodeTabs();upHdr()"></div>';
-    h+='<div><label class="fl">Description / Area</label><input type="text" value="'+esc(n.desc)+'" placeholder="e.g. Crude Receiving Facility" oninput="S.nodes['+i+'].desc=this.value"></div>';
-    h+='<button class="btn btn-d btn-s" onclick="removeNode('+i+')" style="align-self:flex-end">&#x2715;</button></div>';
-  });
-  el.innerHTML=h;
-}
-function renderNodeTabs(){
-  var bar=document.getElementById('nodeTabs');
-  if(!S.nodes.length){bar.innerHTML='<span class="muted small">No nodes \u2014 add them in Workshop Setup</span>';document.getElementById('nodeAIBar').style.display='none';return;}
-  var h='<span class="muted small">Node:</span>';
-  S.nodes.forEach(function(n){h+='<button class="ntab'+(S.activeNode===n.id?' active':'')+'" onclick="selectNode(\''+n.id+'\')">'+esc(n.code||'?')+' '+esc(n.name||'Unnamed')+'</button>';});
-  bar.innerHTML=h;
-  var node=S.nodes.find(function(n){return n.id===S.activeNode;});
-  if(node){
-    document.getElementById('nodeAIBar').style.display='block';
-    document.getElementById('nodeAIName').textContent=node.code+' \u2014 '+(node.name||'Unnamed');
+function generateCode(parentId) {
+  if (!parentId) {
+    var roots = S.nodes.filter(function(n){return !n.parentId;});
+    return 'N' + (roots.length + 1);
   }
-  // filter dropdown
-  var rf=document.getElementById('recFilter');
-  if(rf){var cur=rf.value,fh='<option value="">All nodes</option>';S.nodes.forEach(function(n){fh+='<option value="'+n.id+'"'+(cur===n.id?' selected':'')+'>'+esc(n.code)+' '+esc(n.name)+'</option>';});rf.innerHTML=fh;rf.value=cur;}
+  var parent = S.nodes.find(function(n){return n.id===parentId;});
+  if (!parent) return 'N1.1';
+  var siblings = S.nodes.filter(function(n){return n.parentId===parentId;});
+  return parent.code + '.' + (siblings.length + 1);
 }
-function selectNode(id){S.activeNode=id;renderNodeTabs();renderChecklist();}
+function getLevel(nodeId) {
+  var n = S.nodes.find(function(x){return x.id===nodeId;});
+  if (!n || !n.parentId) return 0;
+  var p = S.nodes.find(function(x){return x.id===n.parentId;});
+  if (!p || !p.parentId) return 1;
+  return 2;
+}
+function getDescendants(nodeId) {
+  var result = [], queue = [nodeId];
+  while (queue.length) {
+    var cur = queue.shift();
+    S.nodes.filter(function(n){return n.parentId===cur;}).forEach(function(c){result.push(c.id);queue.push(c.id);});
+  }
+  return result;
+}
+function addNode() {
+  var id = 'nd' + Date.now();
+  S.nodes.push({id:id, code:generateCode(null), name:'', desc:'', parentId:null});
+  if (!S.activeNode) S.activeNode = id;
+  renderNodeList(); renderNodeTabs(); upHdr();
+}
+function addSubNode(parentId) {
+  var parent = S.nodes.find(function(n){return n.id===parentId;});
+  if (!parent) return;
+  var level = getLevel(parentId);
+  if (level >= 2) { alert('Maximum 3 levels supported (Node > Sub-node > Sub-sub-node).'); return; }
+  var id = 'nd' + Date.now() + '_' + Math.random().toString(36).slice(2,6);
+  S.nodes.push({id:id, code:generateCode(parentId), name:'', desc:'', parentId:parentId});
+  if (!S.activeNode) S.activeNode = id;
+  renderNodeList(); renderNodeTabs(); upHdr();
+}
+function removeNode(id) {
+  var toRemove = [id].concat(getDescendants(id));
+  toRemove.forEach(function(nid){
+    Object.keys(S.cl).filter(function(k){return k.indexOf(nid+'_')===0;}).forEach(function(k){delete S.cl[k];});
+  });
+  S.nodes = S.nodes.filter(function(n){return toRemove.indexOf(n.id)<0;});
+  if (toRemove.indexOf(S.activeNode) >= 0) S.activeNode = S.nodes.length ? S.nodes[0].id : null;
+  renderNodeList(); renderNodeTabs(); upHdr();
+}
+
+function renderNodeList() {
+  var el = document.getElementById('nodeList');
+  if (!S.nodes.length) {
+    el.innerHTML = '<p class="note" style="color:var(--t2);text-align:center;padding:16px 0">No nodes yet. Click <strong>+ Add Node</strong>.</p>';
+    return;
+  }
+  function renderBranch(parentId) {
+    var children = S.nodes.filter(function(n){return (n.parentId||null)===(parentId||null);});
+    if (!children.length) return '';
+    var h = '';
+    children.forEach(function(n) {
+      var level = getLevel(n.id);
+      var lvlCls = 'node-l' + level;
+      var indent = level === 1 ? 22 : level === 2 ? 44 : 0;
+      var prefix = level === 1 ? '\u2514 ' : level === 2 ? '\u2514\u2500 ' : '';
+      var labelLvl = level === 0 ? 'Node' : level === 1 ? 'Sub-node' : 'Sub-sub-node';
+      var codePH = level === 0 ? 'N1' : level === 1 ? 'N1.1' : 'N1.1.1';
+      var nmPH = level === 0 ? 'e.g. Package 4 \u2014 Tank Farm' : level === 1 ? 'e.g. North Section / Tie-in Area' : 'e.g. Foundation Works / Cable Routing';
+      var dsPH = level === 0 ? 'e.g. Crude Receiving Facility' : level === 1 ? 'e.g. North tank pad area' : 'e.g. Piling and foundation scope';
+      var nid = n.id;
+      h += '<div style="display:grid;grid-template-columns:90px 1fr 1.5fr auto;gap:7px;align-items:end;';
+      h += 'margin-bottom:7px;padding:9px 11px;border-radius:var(--r);' + (indent ? 'margin-left:'+indent+'px;' : '');
+      h += '" class="' + lvlCls + '">';
+      h += '<div>';
+      h += '<label class="fl">' + (prefix ? '<span style="color:var(--t2)">' + prefix + '</span>' : '') + labelLvl + ' Code</label>';
+      h += '<input type="text" value="' + esc(n.code) + '" placeholder="' + codePH + '" style="font-family:monospace;font-weight:500" oninput="updateNodeCode(\'' + nid + '\',this.value)">';
+      h += '</div>';
+      h += '<div><label class="fl">Name</label>';
+      h += '<input type="text" value="' + esc(n.name) + '" placeholder="' + nmPH + '" oninput="updateNodeField(\'' + nid + '\',\'name\',this.value);renderNodeTabs();upHdr()"></div>';
+      h += '<div><label class="fl">Description / Scope</label>';
+      h += '<input type="text" value="' + esc(n.desc) + '" placeholder="' + dsPH + '" oninput="updateNodeField(\'' + nid + '\',\'desc\',this.value)"></div>';
+      h += '<div style="display:flex;flex-direction:column;gap:4px;align-self:flex-end">';
+      if (level < 2) {
+        var btnLbl = level === 0 ? '+ Sub-node' : '+ Sub-sub-node';
+        h += '<button class="btn btn-s" style="font-size:10px;white-space:nowrap" onclick="addSubNode(\'' + nid + '\')">' + btnLbl + '</button>';
+      }
+      h += '<button class="btn btn-d btn-s" onclick="removeNode(\'' + nid + '\')" title="Remove' + (level<2?' and all children':'') + '">\u2715</button>';
+      h += '</div></div>';
+      // Recursively render children
+      h += renderBranch(n.id);
+    });
+    return h;
+  }
+  el.innerHTML = renderBranch(null);
+}
+
+function updateNodeCode(id, val) {
+  var n = S.nodes.find(function(x){return x.id===id;});
+  if (n) { n.code = val; renderNodeTabs(); upHdr(); }
+}
+function updateNodeField(id, field, val) {
+  var n = S.nodes.find(function(x){return x.id===id;});
+  if (n) n[field] = val;
+}
+
+function renderNodeTabs() {
+  var bar = document.getElementById('nodeTabs');
+  if (!S.nodes.length) {
+    bar.innerHTML = '<span class="muted small">No nodes \u2014 add them in Workshop Setup</span>';
+    document.getElementById('nodeAIBar').style.display = 'none';
+    return;
+  }
+  function buildTabs(parentId, level) {
+    var children = S.nodes.filter(function(n){return (n.parentId||null)===(parentId||null);});
+    var h = '';
+    children.forEach(function(n) {
+      var lvlCls = 'ntab ntab-l' + level + (S.activeNode===n.id ? ' active' : '');
+      var prefix = level === 1 ? '\u2514 ' : level === 2 ? '\u2514\u2500 ' : '';
+      h += '<button class="' + lvlCls + '" onclick="selectNode(\'' + n.id + '\')" title="' + esc(n.name) + '">';
+      h += prefix + esc(n.code || '?') + (n.name ? ' ' + esc(n.name) : '');
+      h += '</button>';
+      h += buildTabs(n.id, level + 1);
+    });
+    return h;
+  }
+  bar.innerHTML = '<span class="muted small" style="flex-shrink:0">Node:</span>' + buildTabs(null, 0);
+  // Update AI bar
+  var node = S.nodes.find(function(n){return n.id===S.activeNode;});
+  if (node) {
+    document.getElementById('nodeAIBar').style.display = 'block';
+    var lvl = getLevel(node.id);
+    var lvlLabel = lvl === 0 ? 'Node' : lvl === 1 ? 'Sub-node' : 'Sub-sub-node';
+    document.getElementById('nodeAIName').textContent = '(' + lvlLabel + ') ' + node.code + ' \u2014 ' + (node.name || 'Unnamed');
+  } else {
+    document.getElementById('nodeAIBar').style.display = 'none';
+  }
+  // Update recs filter
+  var rf = document.getElementById('recFilter');
+  if (rf) {
+    var cur = rf.value;
+    var fh = '<option value="">All nodes (all levels)</option>';
+    // Flat list in tree order for filter
+    function flatTree(pid) {
+      S.nodes.filter(function(n){return (n.parentId||null)===(pid||null);}).forEach(function(n){
+        var lvl = getLevel(n.id);
+        var pfx = lvl===1?'\u2514 ':lvl===2?'\u2514\u2500 ':'';
+        fh += '<option value="'+n.id+'"'+(cur===n.id?' selected':'')+'>'+pfx+esc(n.code)+' '+esc(n.name)+'</option>';
+        flatTree(n.id);
+      });
+    }
+    flatTree(null);
+    rf.innerHTML = fh; rf.value = cur;
+  }
+}
+
+function selectNode(id) { S.activeNode = id; renderNodeTabs(); renderChecklist(); }
 renderNodeList();
 
 // ════ PARTICIPANTS ════════════════════════════════════════════════════════════
@@ -848,12 +970,18 @@ function renderReport(){
 }
 
 // ════ EXCEL ════════════════════════════════════════════════════════════════════
+function esc_plain(s){return String(s||'');}
 function expXL(){
   if(typeof XLSX==='undefined'){alert('Excel library not loaded. Check internet connection.');return;}
   var wb=XLSX.utils.book_new();var p=S.proj;
   var cov=[['CONSTRUCTABILITY REVIEW WORKSHOP REPORT'],[''],['Project Name:',p.name||''],['Project Number:',p.number||''],['Client / Owner:',p.client||''],['EPC Contractor:',p.epc||''],['FEED Contractor:',p.feed||''],['Facility Type:',p.facilityType||''],['Location:',p.location||''],['Review Date:',p.date||''],['Lead Reviewer:',p.reviewer||''],[''],['NODES UNDER REVIEW'],['Node Code','Node Name','Description']];
-  S.nodes.forEach(function(n){cov.push([n.code||'',n.name||'',n.desc||'']);});
-  cov.push([''],['Generated:',new Date().toLocaleString()]);
+  S.nodes.forEach(function(n){
+    var lvl=getLevel(n.id);
+    var pfx=lvl===1?'└ ':lvl===2?'└─ ':'';
+    var parent=n.parentId?S.nodes.find(function(x){return x.id===n.parentId;}):null;
+    cov.push([pfx+(n.code||''),(lvl===1?'  ':lvl===2?'    ':'')+esc_plain(n.name||''),esc_plain(n.desc||''),parent?parent.code:'']);
+  });
+  cov.push([''],['Note: Level 0=Node, Level 1=Sub-node, Level 2=Sub-sub-node'],['Generated:',new Date().toLocaleString()]);
   var wsCov=XLSX.utils.aoa_to_sheet(cov);wsCov['!cols']=[{wch:22},{wch:65}];
   XLSX.utils.book_append_sheet(wb,wsCov,'Cover');
   var fHdr=['Ref No.','Node Code','Node Name','GW No.','Guideword','Prompt No.','Prompts & Guidewords','Major Challenges / Difficulties, Issues & Concerns / Observations','Recommendations','Responsibility','Remarks','AI Assisted'];
