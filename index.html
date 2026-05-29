@@ -135,7 +135,20 @@ input[type=checkbox]{width:auto;accent-color:var(--navy)}
 /* AI Node Suggest */
 .node-suggest-box{border:1px solid var(--ai-col);border-radius:var(--r);padding:14px;background:var(--ai-bg);margin-top:12px}
 .node-suggest-tree{margin:10px 0;padding:10px 13px;background:var(--bg0);border-radius:var(--r);border:1px solid var(--b1)}
-@media print{.no-print{display:none!important}.hdr{background:#0C2340!important;-webkit-print-color-adjust:exact;print-color-adjust:exact}.tabbar{display:none!important}.tc{border:none!important;padding:0!important}.wrap{padding:0!important}@page{margin:1.5cm}}
+.print-fab{position:fixed;bottom:24px;right:24px;background:#0C2340;color:#fff;border:none;border-radius:50px;padding:12px 22px;font-size:13px;font-weight:500;cursor:pointer;box-shadow:0 4px 16px rgba(0,0,0,.35);z-index:9999;display:flex;align-items:center;gap:8px;font-family:inherit;transition:transform .15s,box-shadow .15s}
+.print-fab:hover{transform:translateY(-2px);box-shadow:0 6px 22px rgba(0,0,0,.45)}
+@media print{
+  .no-print,.print-fab,.tabbar{display:none!important}
+  body{background:#fff!important}
+  .wrap{padding:0!important;max-width:100%!important}
+  .hdr{background:#0C2340!important;-webkit-print-color-adjust:exact;print-color-adjust:exact;border-radius:0!important}
+  .tc{border:none!important;padding:0!important}
+  .card{box-shadow:none!important;break-inside:avoid}
+  .tbl td,.tbl th{font-size:10pt!important}
+  #tab-report{display:block!important}
+  #tab-setup,#tab-checklist,#tab-recs,#tab-questionnaire{display:none!important}
+  @page{margin:1.5cm;size:A4}
+}
 @media(max-width:700px){.g2,.g3,.g4,.prf{grid-template-columns:1fr}.tb{padding:8px 10px}}
 </style>
 </head>
@@ -353,6 +366,11 @@ input[type=checkbox]{width:auto;accent-color:var(--navy)}
 
 </div><!-- /tc -->
 </div><!-- /wrap -->
+
+<!-- Floating Print Button -->
+<button class="print-fab no-print" onclick="printReport()" title="Print report or Save as PDF">
+  &#x1F5A8; Print / Save PDF
+</button>
 
 <!-- Toast notification -->
 <div class="toast" id="toast"></div>
@@ -1725,6 +1743,16 @@ async function aiGenerateQuestions() {
     }
   } catch(e) { showToast('\u26a0 ' + e.message); }
   finally { if (btn) { btn.disabled = false; btn.innerHTML = '&#x1F916; AI: Generate Project-Specific Questions'; } }
+}
+
+
+// ════ PRINT / SAVE PDF ═══════════════════════════════════════════════════════
+function printReport() {
+  // Switch to report tab and render, then print
+  switchTab('report');
+  renderReport();
+  // Small delay to ensure DOM is updated before print dialog
+  setTimeout(function() { window.print(); }, 350);
 }
 
 upHdr();
