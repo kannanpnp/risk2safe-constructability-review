@@ -453,122 +453,72 @@ function detectContext(node,proj){
 }
 
 function buildContextualGuidance(ctx){
-  var g='';
+  var L=[];
   if(ctx.brownfield||ctx.redZone){
-    g+='
-
-CRITICAL CONTEXT — BROWNFIELD / LIVE PLANT / OPERATING FACILITY:
-';
-    g+='This construction is inside or immediately adjacent to an operating process unit. You MUST address:
-';
-    g+='- IRPA (Individual Risk Per Annum): Quantify increased risk for construction workers in the process area. Workers in live plant have cumulative exposure to process hazards; IRPA must be verified against company/client tolerability criteria (typically 1x10-3 p.a. for workers).
-';
-    g+='- PLL (Potential Loss of Life): Calculate PLL uplift from adding construction crew to the process area. Requires SIMOPS QRA sign-off before mobilisation.
-';
-    g+='- SIMOPS QRA (Simultaneous Operations Quantitative Risk Assessment): Mandatory. Must model cumulative risk from construction + operations activities. QRA results must be reviewed by HSE Lead and approved by Asset Manager.
-';
-    g+='- Ignition Source Management: Hot work permit matrix required. All construction equipment must be ATEX-rated or controlled. Vehicle exclusion zones, engine isolation, and intrinsically safe tools mandatory in hazardous area zones.
-';
-    g+='- Personnel Density / POB Limits: Number of simultaneous persons in process area affects risk level. Must align with SIMOPS assessment; may require shift management to limit simultaneous workforce.
-';
-    g+='- SCBA / Respiratory Protection: If working in area with potential H2S, VOC, or gas release exposure, SCBA requirements reduce effective working time and impact productivity planning.
-';
-    g+='- LoToTo (Lock Out Tag Out Try Out) & Double Block and Bleed: Isolation philosophy must cover all energy sources. Tie-ins require isolation certificates reviewed by operations.
-';
-    g+='- Fire & Gas Detection Gaps: Construction activities (scaffolding, lagging removal, insulation stripping) may impair fixed F&G detector coverage. Additional portable detectors or watch-keeper required.
-';
-    g+='- Emergency Evacuation Complexity: Multiple muster points for operations + construction; evacuation routes must not be obstructed by scaffolding or equipment laydown.
-';
-    g+='- Hot Work & Simultaneous Permit Load: Multiple simultaneous hot work permits increase cumulative ignition risk. PTW authority must control daily permit load.
-';
-    g+='- Noise & Vibration: Construction noise and vibration can affect instrumentation, analyzer performance, and rotating equipment vibration baselines. Baseline readings before construction start.
-';
-    g+='- Scaffold Impact on Process Egress: Scaffold structures must not obstruct emergency depressurisation valves, deluge heads, or designated escape routes.
-';
+    L.push('');
+    L.push('CRITICAL CONTEXT — BROWNFIELD / LIVE PLANT / OPERATING FACILITY:');
+    L.push('This construction is inside or immediately adjacent to an operating process unit. You MUST address all of the following in your analysis:');
+    L.push('- IRPA (Individual Risk Per Annum): Quantify the increased risk for construction workers in the process area. Workers in a live plant have cumulative exposure to process hazards; IRPA must be verified against client tolerability criteria (typically <1x10-3 p.a. for workers).');
+    L.push('- PLL (Potential Loss of Life): Calculate PLL uplift from adding construction crew to the process area. Requires SIMOPS QRA sign-off before mobilisation.');
+    L.push('- SIMOPS QRA (Simultaneous Operations Quantitative Risk Assessment): Mandatory before construction starts. Must model cumulative risk from construction + operations activities. QRA results must be reviewed by HSE Lead and approved by Asset Manager.');
+    L.push('- Ignition Source Management: Hot work permit matrix required. All construction equipment must be ATEX-rated or positively controlled. Vehicle exclusion zones, engine isolation, and intrinsically safe tools mandatory in hazardous area zones.');
+    L.push('- Personnel Density / POB Limits: Number of simultaneous persons in process area directly affects risk level. Must align with SIMOPS assessment; shift management may be required to limit simultaneous workforce count.');
+    L.push('- SCBA / Respiratory Protection: Working in areas with potential H2S, VOC, or gas release exposure requires SCBA. This significantly reduces effective working time (max 30-45 min per entry) and must be factored into productivity and schedule planning.');
+    L.push('- LoToTo (Lock Out Tag Out Try Out) & Double Block and Bleed: Isolation philosophy must cover all energy sources. All tie-in work requires isolation certificates reviewed and co-signed by operations.');
+    L.push('- Fire & Gas Detection Gaps: Scaffolding, lagging removal, and insulation stripping may impair fixed F&G detector coverage. Additional portable gas detectors or dedicated gas watch-keeper required at all times.');
+    L.push('- Emergency Evacuation Complexity: Multiple muster points needed for operations and construction workforces. All evacuation routes must be free of scaffolding, materials, and equipment at all times.');
+    L.push('- Hot Work & Simultaneous Permit Load: Multiple concurrent hot work permits increase cumulative ignition risk. PTW authority must actively manage and control daily permit load against SIMOPS QRA limits.');
+    L.push('- Noise & Vibration Impact: Construction noise and vibration can affect instrumentation, analyser performance, and rotating equipment vibration baselines. Baseline readings must be taken and agreed before construction commences.');
+    L.push('- Scaffold Impact on Emergency Systems: All scaffold structures must be confirmed not to obstruct emergency depressurisation valves, deluge heads, F&G detector lines of sight, or designated escape routes.');
   }
   if(ctx.shutdown){
-    g+='
-
-SHUTDOWN / TURNAROUND CONTEXT:
-';
-    g+='- Hard deadline for plant restart creates schedule pressure that can drive unsafe shortcuts. Robust MOC and stop-work authority required.
-';
-    g+='- Multi-contractor congestion: multiple work fronts, shared scaffold, simultaneous permits. Rigorous SIMOPS planning and daily co-ordination meetings mandatory.
-';
-    g+='- Permit to Work overload risk: PTW authority may be overwhelmed. Electronic PTW system and deputy authorities needed.
-';
-    g+='- Tie-in management: isolation certificate control, blind lists, and reinstatement tracking must be rigorously managed.
-';
-    g+='- Post-shutdown recommissioning: pressure testing, leak testing, functional testing sequence must be in pre-commissioned plan before restart clearance.
-';
+    L.push('');
+    L.push('SHUTDOWN / TURNAROUND CONTEXT:');
+    L.push('- Hard deadline for plant restart creates intense schedule pressure that can drive unsafe shortcuts. Robust Management of Change (MOC) and stop-work authority must be reinforced from day one.');
+    L.push('- Multi-contractor congestion: multiple simultaneous work fronts, shared scaffold access, and concurrent permit load. Rigorous SIMOPS planning and daily co-ordination meetings with all contractors mandatory.');
+    L.push('- Permit to Work overload risk: PTW authority may be overwhelmed by volume. Electronic PTW systems and Deputy Authorised Persons must be in place before shutdown commences.');
+    L.push('- Tie-in management: isolation certificate control, blind lists, and reinstatement tracking must be rigorously managed using a dedicated isolation register.');
+    L.push('- Post-shutdown recommissioning: full pressure, leak, and functional testing sequence must be defined in pre-commissioning plan and signed off before restart clearance is issued.');
   }
   if(ctx.tieIn){
-    g+='
-
-TIE-IN / HOT TAP CONTEXT:
-';
-    g+='- Hot tapping on live pipework requires specialist contractor, engineered procedure, and simultaneous gas monitoring.
-';
-    g+='- Isolation philosophy review: existing P&IDs vs as-built must be verified before raising isolation certificates.
-';
-    g+='- Tie-in window must be co-ordinated with operations minimum-flow or shutdown requirements.
-';
-    g+='- Spade/blank management register to track all isolation points throughout the tie-in campaign.
-';
+    L.push('');
+    L.push('TIE-IN / HOT TAP CONTEXT:');
+    L.push('- Hot tapping on live pipework requires a specialist contractor, engineered procedure, and dedicated simultaneous gas monitoring throughout the operation.');
+    L.push('- Isolation philosophy review: existing P&IDs must be verified against as-built conditions before any isolation certificates are raised.');
+    L.push('- Tie-in windows must be formally agreed with operations and aligned with minimum-flow conditions or planned shutdown windows.');
+    L.push('- Spade and blank management register must track all isolation points and reinstatement status throughout the entire tie-in campaign.');
   }
   if(ctx.offshore){
-    g+='
-
-OFFSHORE CONTEXT:
-';
-    g+='- TR (Temporary Refuge) integrity: construction must not compromise smoke/gas ingress protection of TR during operations.
-';
-    g+='- Helideck restrictions during crane lifts and scaffolding at height.
-';
-    g+='- Weather window management for offshore lifts (significant wave height, wind limits).
-';
-    g+='- SOLAS and OPITO requirements; survival craft / lifeboat accessibility must be maintained.
-';
+    L.push('');
+    L.push('OFFSHORE CONTEXT:');
+    L.push('- TR (Temporary Refuge) integrity: construction activities must not compromise smoke/gas ingress protection of the TR during normal operations.');
+    L.push('- Helideck restrictions apply during crane lifts and any work at height adjacent to the helideck.');
+    L.push('- All offshore lifts require weather window management with defined limits for significant wave height, wind speed, and vessel motion.');
+    L.push('- SOLAS and OPITO compliance required; survival craft and lifeboat station accessibility must be maintained at all times during construction.');
   }
   if(ctx.h2s){
-    g+='
-
-H2S / SOUR SERVICE CONTEXT:
-';
-    g+='- H2S monitoring: fixed and portable detection strategy; alarm set points and evacuation triggers.
-';
-    g+='- BA sets and cascade air systems positioned at entry points; response time planning.
-';
-    g+='- Wind sock positioning updated for seasonal wind direction changes.
-';
-    g+='- NACE MR0175/ISO 15156 material certification required for all wetted parts in sour service.
-';
+    L.push('');
+    L.push('H2S / SOUR SERVICE CONTEXT:');
+    L.push('- H2S monitoring: a fixed and portable detection strategy must be defined with clear alarm set points and evacuation triggers.');
+    L.push('- BA sets and cascade air breathing systems must be positioned at all entry points; response time planning must account for donning time.');
+    L.push('- Wind sock positioning must be reviewed for seasonal wind direction changes at the site location.');
+    L.push('- NACE MR0175 / ISO 15156 material certification must be verified for all wetted parts in sour service prior to installation.');
   }
   if(ctx.confined){
-    g+='
-
-CONFINED SPACE CONTEXT:
-';
-    g+='- Confined space entry permit, atmospheric testing (O2, LEL, H2S, CO) before and during entry.
-';
-    g+='- Dedicated rescue team and equipment positioned at entry point before work begins.
-';
-    g+='- Mechanical ventilation calculations; continuous monitoring logged.
-';
+    L.push('');
+    L.push('CONFINED SPACE CONTEXT:');
+    L.push('- Confined space entry permit required with atmospheric testing (O2, LEL, H2S, CO) before and continuously during all entry operations.');
+    L.push('- A dedicated rescue team with full rescue equipment must be positioned at the entry point before any person enters.');
+    L.push('- Mechanical ventilation calculations must be documented and continuous atmospheric monitoring must be logged throughout the work.');
   }
   if(ctx.highVoltage){
-    g+='
-
-ELECTRICAL ISOLATION CONTEXT:
-';
-    g+='- HV isolation to be managed under Electrical Safety Rules; Authorised Person/Competent Person roles confirmed.
-';
-    g+='- Arc flash risk assessment required for any work within prohibited / restricted boundary.
-';
-    g+='- Earthing and proving dead sequence to be witnessed and signed off.
-';
+    L.push('');
+    L.push('ELECTRICAL ISOLATION CONTEXT:');
+    L.push('- HV isolation must be managed under formal Electrical Safety Rules; Authorised Person and Competent Person roles must be confirmed before any work commences.');
+    L.push('- Arc flash risk assessment required; incident energy levels must be calculated and appropriate PPE specified for all work within prohibited or restricted boundaries.');
+    L.push('- Earthing and proving-dead sequence must be witnessed and formally signed off before any electrical work begins.');
   }
-  return g;
+  return L.join('\n');
 }
 
 function showToast(msg,dur){
@@ -603,7 +553,7 @@ function switchTab(id){
   var tabs=['setup','checklist','recs','questionnaire','report'];
   var btns=document.querySelectorAll('.tb');
   tabs.forEach(function(t,i){
-    document.getElementById('tab-'+t).style.display=(t===id)?'block':'none';
+    var _el=document.getElementById('tab-'+t); if(_el) _el.style.display=(t===id)?'block':'none';
     if(btns[i])btns[i].classList.toggle('active',t===id);
   });
   if(id==='checklist'){renderNodeTabs();renderChecklist();}
@@ -938,68 +888,142 @@ function updKey(){
 
 // ════ PROMPT ROW RENDERER ════════════════════════════════════════════════════
 function renderPromptRow(node, gw, prompt, pi) {
-  var d=clGet(node.id,gw.id,pi);
-  var ref=makeRef(node.code||node.id,gw.num,pi);
-  var nid=node.id,gwid=gw.id;
-  var obsCls='obs'+(d.aiObs?' ai-filled':'');
-  var recCls=(d.aiRec?'ai-filled':'');
-  var h='<div class="pr">';
+  var d = clGet(node.id, gw.id, pi);
+  var ref = makeRef(node.code||node.id, gw.num, pi);
+  var obsCls = 'obsf' + (d.aiObs ? ' aif' : '');
+  var recCls = d.aiRec ? 'aif' : '';
+  var uid = node.id + '_' + gw.id + '_' + pi;
+  var h = '';
+  h += '<div class="pr" id="pr-' + uid + '">';
   // Header
-  h+='<div class="prh"><span class="ref">'+esc(ref)+'</span>';
-  if(d.aiObs||d.aiRec)h+='<span class="ai-badge" style="font-size:9px">AI</span>';
-  h+='<div class="prt">'+(pi+1)+'. '+esc(prompt)+'</div></div>';
-  h+='<div class="prf">';
+  h += '<div class="prh">';
+  h += '<span class="ref">' + esc(ref) + '</span>';
+  if(d.aiObs||d.aiRec) h += '<span class="ai-badge" style="font-size:9px">AI</span>';
+  h += '<div class="prt">' + (pi+1) + '. ' + esc(prompt) + '</div>';
+  h += '</div>';
+  h += '<div class="prf">';
 
-  // ── Observations column ──
-  h+='<div>';
-  h+='<div class="'+obsCls+'">';
-  h+='<label class="fl">⚠ Major Challenges / Difficulties, Issues &amp; Concerns / Observations';
-  if(d.aiObs)h+=' <span style="color:var(--ai-col);font-size:10px">— AI suggested, please review</span>';
-  h+='</label>';
-  h+='<textarea rows="3" placeholder="Describe challenges, difficulties, issues or observations..." oninput="clSet(''+nid+'',''+gwid+'','+pi+','obs',this.value);S.cl[clKey(''+nid+'',''+gwid+'','+pi+')].aiObs=false">'+esc(d.obs||'')+'</textarea>';
-  h+='</div>';
-  // Extra manual observations
-  (d.extraObs||[]).forEach(function(eo,ei){
-    h+='<div style="display:flex;gap:5px;align-items:flex-start;margin-top:6px">';
-    h+='<div style="flex:1">';
-    h+='<label class="fl" style="color:var(--ok-col)">+ Manual Observation '+(ei+1)+'</label>';
-    h+='<textarea rows="2" style="border-color:var(--ok-col);background:var(--ok-bg)" placeholder="Add additional manual observation..." oninput="updateExtraObs(''+nid+'',''+gwid+'','+pi+','+ei+',this.value)">'+esc(eo.text||'')+'</textarea>';
-    h+='</div>';
-    h+='<button class="btn btn-d btn-s" style="margin-top:16px;flex-shrink:0" onclick="removeExtraObs(''+nid+'',''+gwid+'','+pi+','+ei+')">✕</button>';
-    h+='</div>';
+  // ── Obs column
+  h += '<div>';
+  h += '<div class="' + obsCls + '">';
+  h += '<label class="fl">';
+  h += '&#x26A0; Major Challenges / Difficulties, Issues &amp; Concerns / Observations';
+  if(d.aiObs) h += ' <span style="color:var(--ai-col);font-size:10px">&#x2014; AI suggested, please review</span>';
+  h += '</label>';
+  h += '<textarea rows="3" data-uid="' + uid + '" data-field="obs"';
+  h += ' placeholder="Describe challenges, difficulties, issues or observations..."';
+  h += ' oninput="handleCL(this)">' + esc(d.obs||'') + '</textarea>';
+  h += '</div>';
+  // Extra obs
+  (d.extraObs||[]).forEach(function(eo, ei2) {
+    h += '<div style="display:flex;gap:5px;align-items:flex-start;margin-top:6px">';
+    h += '<div style="flex:1">';
+    h += '<label class="fl" style="color:var(--ok-col)">+ Manual Observation ' + (ei2+1) + '</label>';
+    h += '<textarea rows="2" class="extra-obs" data-uid="' + uid + '" data-ei="' + ei2 + '" data-field="extraObs"';
+    h += ' placeholder="Add manual observation..." oninput="handleExtra(this)">' + esc(eo.text||'') + '</textarea>';
+    h += '</div>';
+    h += '<button class="btn btn-d btn-s" style="margin-top:16px;flex-shrink:0"';
+    h += ' data-uid="' + uid + '" data-ei="' + ei2 + '" data-type="obs" onclick="delExtra(this)">&#x2715;</button>';
+    h += '</div>';
   });
-  h+='<button onclick="addExtraObs(''+nid+'',''+gwid+'','+pi+')" style="font-size:11px;margin-top:7px;padding:3px 10px;border-radius:var(--r);border:1px dashed var(--ok-col);background:transparent;color:var(--ok-col);cursor:pointer;font-family:inherit">+ Add Observation</button>';
-  h+='</div>';
+  h += '<button class="add-btn add-obs" data-uid="' + uid + '" data-type="obs" onclick="addExtra(this)">+ Add Observation</button>';
+  h += '</div>';
 
-  // ── Recommendations column ──
-  h+='<div>';
-  h+='<div class="'+recCls+'">';
-  h+='<label class="fl">✅ Recommendations';
-  if(d.aiRec)h+=' <span style="color:var(--ai-col);font-size:10px">— AI suggested, please review</span>';
-  h+='</label>';
-  h+='<textarea rows="3" placeholder="Enter recommendations..." oninput="clSet(''+nid+'',''+gwid+'','+pi+','rec',this.value);S.cl[clKey(''+nid+'',''+gwid+'','+pi+')].aiRec=false">'+esc(d.rec||'')+'</textarea>';
-  h+='</div>';
-  // Extra manual recommendations
-  (d.extraRec||[]).forEach(function(er,ei){
-    h+='<div style="display:flex;gap:5px;align-items:flex-start;margin-top:6px">';
-    h+='<div style="flex:1">';
-    h+='<label class="fl" style="color:var(--navy)">+ Manual Recommendation '+(ei+1)+'</label>';
-    h+='<textarea rows="2" style="border-color:var(--navy);background:var(--info-bg)" placeholder="Add additional manual recommendation..." oninput="updateExtraRec(''+nid+'',''+gwid+'','+pi+','+ei+',this.value)">'+esc(er.text||'')+'</textarea>';
-    h+='</div>';
-    h+='<button class="btn btn-d btn-s" style="margin-top:16px;flex-shrink:0" onclick="removeExtraRec(''+nid+'',''+gwid+'','+pi+','+ei+')">✕</button>';
-    h+='</div>';
+  // ── Rec column
+  h += '<div>';
+  h += '<div class="' + recCls + '">';
+  h += '<label class="fl">';
+  h += '&#x2705; Recommendations';
+  if(d.aiRec) h += ' <span style="color:var(--ai-col);font-size:10px">&#x2014; AI suggested, please review</span>';
+  h += '</label>';
+  h += '<textarea rows="3" data-uid="' + uid + '" data-field="rec"';
+  h += ' placeholder="Enter recommendations..." oninput="handleCL(this)">' + esc(d.rec||'') + '</textarea>';
+  h += '</div>';
+  // Extra rec
+  (d.extraRec||[]).forEach(function(er, ei2) {
+    h += '<div style="display:flex;gap:5px;align-items:flex-start;margin-top:6px">';
+    h += '<div style="flex:1">';
+    h += '<label class="fl" style="color:#0C2340">+ Manual Recommendation ' + (ei2+1) + '</label>';
+    h += '<textarea rows="2" class="extra-rec" data-uid="' + uid + '" data-ei="' + ei2 + '" data-field="extraRec"';
+    h += ' placeholder="Add manual recommendation..." oninput="handleExtra(this)">' + esc(er.text||'') + '</textarea>';
+    h += '</div>';
+    h += '<button class="btn btn-d btn-s" style="margin-top:16px;flex-shrink:0"';
+    h += ' data-uid="' + uid + '" data-ei="' + ei2 + '" data-type="rec" onclick="delExtra(this)">&#x2715;</button>';
+    h += '</div>';
   });
-  h+='<button onclick="addExtraRec(''+nid+'',''+gwid+'','+pi+')" style="font-size:11px;margin-top:7px;padding:3px 10px;border-radius:var(--r);border:1px dashed var(--navy);background:transparent;color:var(--navy);cursor:pointer;font-family:inherit">+ Add Recommendation</button>';
-  h+='</div>';
+  h += '<button class="add-btn add-rec" data-uid="' + uid + '" data-type="rec" onclick="addExtra(this)">+ Add Recommendation</button>';
+  h += '</div>';
 
-  // ── Bottom row ──
-  h+='<div><label class="fl">Responsibility</label><select onchange="clSet(''+nid+'',''+gwid+'','+pi+','resp',this.value)"><option value="">— Select —</option>';
-  RESP.forEach(function(r){h+='<option'+(d.resp===r?' selected':'')+'>'+esc(r)+'</option>';});
-  h+='</select></div>';
-  h+='<div><label class="fl">Remarks</label><input type="text" value="'+esc(d.remarks||'')+'" placeholder="Additional remarks..." oninput="clSet(''+nid+'',''+gwid+'','+pi+','remarks',this.value)"></div>';
-  h+='</div></div>'; // prf, pr
+  // ── Bottom row
+  h += '<div>';
+  h += '<label class="fl">Responsibility</label>';
+  h += '<select data-uid="' + uid + '" data-field="resp" onchange="handleCL(this)">';
+  h += '<option value="">&#x2014; Select &#x2014;</option>';
+  RESP.forEach(function(r) { h += '<option' + (d.resp===r ? ' selected' : '') + '>' + esc(r) + '</option>'; });
+  h += '</select>';
+  h += '</div>';
+  h += '<div>';
+  h += '<label class="fl">Remarks</label>';
+  h += '<input type="text" data-uid="' + uid + '" data-field="remarks" value="' + esc(d.remarks||'') + '" placeholder="Additional remarks..." oninput="handleCL(this)">';
+  h += '</div>';
+  h += '</div></div>';
   return h;
 }
+
+// Delegated event handlers using data attributes (no inline string escaping needed)
+function handleCL(el) {
+  var uid = el.getAttribute('data-uid');
+  var field = el.getAttribute('data-field');
+  if(!uid || !field) return;
+  var parts = uid.split('_');
+  // uid = nodeId_gwId_pi  but nodeId may contain underscores
+  // Find gwId and pi from the end
+  var pi = parseInt(parts[parts.length-1]);
+  var gwId = parts[parts.length-2];
+  var nid = parts.slice(0, parts.length-2).join('_');
+  clSet(nid, gwId, pi, field, el.value);
+  if(field==='obs') { var k=clKey(nid,gwId,pi); if(S.cl[k]) S.cl[k].aiObs=false; }
+  if(field==='rec') { var k=clKey(nid,gwId,pi); if(S.cl[k]) S.cl[k].aiRec=false; }
+}
+function handleExtra(el) {
+  var uid = el.getAttribute('data-uid');
+  var ei2 = parseInt(el.getAttribute('data-ei'));
+  var field = el.getAttribute('data-field');
+  var parts = uid.split('_');
+  var pi = parseInt(parts[parts.length-1]);
+  var gwId = parts[parts.length-2];
+  var nid = parts.slice(0, parts.length-2).join('_');
+  var d = clGet(nid, gwId, pi);
+  if(field==='extraObs' && d.extraObs[ei2]) d.extraObs[ei2].text = el.value;
+  if(field==='extraRec' && d.extraRec[ei2]) d.extraRec[ei2].text = el.value;
+  upHdr();
+}
+function addExtra(btn) {
+  var uid = btn.getAttribute('data-uid');
+  var type = btn.getAttribute('data-type');
+  var parts = uid.split('_');
+  var pi = parseInt(parts[parts.length-1]);
+  var gwId = parts[parts.length-2];
+  var nid = parts.slice(0, parts.length-2).join('_');
+  var d = clGet(nid, gwId, pi);
+  if(type==='obs') d.extraObs.push({id:Date.now(), text:''});
+  else d.extraRec.push({id:Date.now(), text:''});
+  renderChecklist();
+}
+function delExtra(btn) {
+  var uid = btn.getAttribute('data-uid');
+  var ei2 = parseInt(btn.getAttribute('data-ei'));
+  var type = btn.getAttribute('data-type');
+  var parts = uid.split('_');
+  var pi = parseInt(parts[parts.length-1]);
+  var gwId = parts[parts.length-2];
+  var nid = parts.slice(0, parts.length-2).join('_');
+  var d = clGet(nid, gwId, pi);
+  if(type==='obs') d.extraObs.splice(ei2,1);
+  else d.extraRec.splice(ei2,1);
+  renderChecklist();
+}
+
 
 // ════ CHECKLIST ═══════════════════════════════════════════════════════════════
 function renderChecklist(){
@@ -1621,7 +1645,7 @@ function renderQ() {
       h += '</select>';
       h += '</div>';
       h += '<div style="text-align:center;padding-top:3px">';
-      var [sbg,scol] = d.status==='Answered' ? ['var(--ok-bg)','var(--ok-col)'] : d.status==='N/A' ? ['var(--muted-bg)','var(--muted-col)'] : ['var(--warn-bg)','var(--warn-col)'];
+      var _sc = d.status==='Answered' ? ['var(--ok-bg)','var(--ok-col)'] : d.status==='N/A' ? ['var(--muted-bg)','var(--muted-col)'] : ['var(--warn-bg)','var(--warn-col)']; var sbg=_sc[0]; var scol=_sc[1];
       h += '<span class="badge" style="background:' + sbg + ';color:' + scol + '">' + d.status + '</span>';
       h += '</div>';
       h += '</div>';
